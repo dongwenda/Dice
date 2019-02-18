@@ -7,11 +7,12 @@
 <body>
 <div align="center">
     <form action="/g" method="get">
-        你当前的骰子为 5位哦:<br><input type="text" name="my_dice" value="{{ my_dice }}"><br><br>
-        第1位数量，第二位点，第三 1斋 0不斋:<br><input id="jiao" type="text" name="num" value="{{ num }}"><br><br>
+        你当前的骰子:<br><input maxlength="5" type="text" name="my_dice" value="{{ my_dice }}" oninput="value=value.replace(/[^\d]/g,'')"><br><br>
+        几个几:<br><input maxlength="2" id="jiao" type="text" name="num" value="{{ num }}"><br><br>
+        不斋0 |斋 1:<br><input maxlength="1" type="text" name="only" value="{{ only }}" oninput="value=value.replace(/[^\d]/g,'')"><br><br>
         <input type="submit" value="点击">
     </form>
-    <textarea rows="35" cols="55">
+    <textarea rows="30" cols="55" readonly="readonly">
     {{ c }}
     </textarea>
 </div>

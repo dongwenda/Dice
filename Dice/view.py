@@ -2,9 +2,9 @@
 __author__ = 'dongwenda'
 __date__ = '2019/2/17 17:46'
 
-from django.http import HttpResponse
 from django.shortcuts import render
-from django.views.generic import View
+from itertools import product
+
 
 def index(request):
     return render(request, 'demo.html')
@@ -15,21 +15,14 @@ def demo(request):
     content['c'] = ''
 
     my_dice = request.GET.get('my_dice', '12345')
-    num = request.GET.get('num', '230')
-    print(type(my_dice),type(num))
+    num = request.GET.get('num', '23')
+    only = request.GET.get('only', '0')
+
 
     my_dices = [int(i) for i in my_dice]
 
     # 所有骰子组合的列表
-    dice_list = [
-        [one, two, three, four, fire]
-        for one in range(1, 7)
-        for two in range(1, 7)
-        for three in range(1, 7)
-        for four in range(1, 7)
-        for fire in range(1, 7)
-    ]
-    # print(dice_list)
+    dice_list = list(product([1, 2, 3, 4, 5, 6], repeat=5))
 
     # 所有的骰子的组合数
     all_dice = len(dice_list)
@@ -65,7 +58,13 @@ def demo(request):
     def get_times_num_probability(times, num, is_only=False):
 
         def p_count(times, num_, is_only):
-            actual_times = times - my_dices.count(num_)
+            if is_only:
+                actual_times = times - my_dices.count(num_)
+            else:
+                if num_ == 1:
+                    actual_times = times - my_dices.count(num_)
+                else:
+                    actual_times = times - my_dices.count(num_) - my_dices.count(1)
             p = round(probability(actual_times, num_, is_only) * 100, 4)
             return p
 
@@ -75,7 +74,7 @@ def demo(request):
         s = '你当前的骰子为：%s\n' %my_dices
         content['c'] += s
         content['c'] += '对方叫 {}个{} {}，概率为：{}%\n'.format(times, num, only, p_count(times, num, is_only))
-        content['c'] += '=================================\n'
+        content['c'] += '=======================================================\n'
         content['c'] += '不斋：\n'
         # 展示当前叫的个数，我当前持有的骰数的，不斋概率
         content['c'] += '不+1\n'
@@ -89,7 +88,7 @@ def demo(request):
         for my_num in my_dices_set:
             content['c'] += '-->{}个{}不斋的概率:{}%\n'.format(times + 1, my_num, p_count(times + 1, my_num, is_only=False))
 
-        content['c'] += '==============================================\n'
+        content['c'] += '=======================================================\n'
         content['c'] += '斋：\n'
         content['c'] += '不+1\n'
         # 展示当前叫的个数，我当前持有的骰数的，斋概率
@@ -104,8 +103,8 @@ def demo(request):
         for my_num in my_dices_set:
             content['c'] += '-->{}个{}斋的概率:{}%\n'.format(times + 1, my_num, p_count(times + 1, my_num, is_only=True))
 
-    get_times_num_probability(int(num[0]), int(num[1]), is_only=int(num[2]))
+    get_times_num_probability(int(num[0]), int(num[1]), is_only=int(only))
     content['my_dice'] = my_dice
     content['num'] = num
-    print(content['c'])
+    content['only'] = only
     return render(request, 'demo.html', content)
